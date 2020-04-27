@@ -1,0 +1,589 @@
+---
+title: "Data Preparation"
+author: "Sarah Ryley"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r default load, include=FALSE}
+
+rm(list=ls())
+gc()
+
+# Load default packages, report functions, disable scientific notation
+source("./Functions/default.R")
+
+```
+
+
+# Prep federal data
+
+```{r load dol data, include=FALSE}
+
+#  22564969 rows 
+
+uis <- read_csv("https://oui.doleta.gov/unemploy/csv/ar203.csv") %>%
+  
+  mutate() %>%
+
+  # rename columns
+  select(state = st,
+         rptdate,
+         sample_pop = c1,
+         
+         sex_male = c2,
+         sex_female = c3,
+         sex_ina = c4,
+         
+         eth_latinx = c40,
+         eth_not_latinx = c41,
+         eth_ina = c42,
+         
+         race_native_alaskan = c43,
+         race_asian = c44,
+         race_black = c45,
+         race_hawaiian_pi = c46,
+         race_white = c47,
+         race_ina = c48,
+         
+         age_under_22 = c12,
+         age_22_24 = c13,
+         age_25_34 = c14,
+         age_35_44 = c15,
+         age_45_54 = c16,
+         age_55_59 = c17,
+         age_60_64 = c18,
+         age_65_over = c19,
+         age_ina = c20,
+         
+         industry_ag_forest_fish_hunt = c49,
+         industry_mining = c50,
+         industry_utilities = c51,
+         industry_construction = c52,
+         industry_manufacturing = c53,
+         industry_wholesale_trade = c54,
+         industry_retail_trade = c55,
+         industry_transport_warehouse = c56,
+         industry_information = c57,
+         industry_finance_insurance = c58,
+         industry_real_estate = c59,
+         industry_prof_scientific_tech_services = c60,
+         industry_management_of_cos_ent = c61,
+         industry_admin_support_wastemgmt_remedial = c62,
+         industry_educational_services = c63,
+         industry_healthcare_social_assistance = c64,
+         industry_arts_ent_rec = c65,
+         industry_accomodation_food = c66,
+         industry_other_services_excl_public_admin = c67,
+         industry_public_admin = c68,
+         industry_ina = c69,
+         
+         occ_mgmt = c70,
+         occ_bussiness_financial_operations = c71,
+         occ_computer_math = c72,
+         occ_architecture_engineering = c73,
+         occ_life_physical_social_sciences = c74,
+         occ_communinity_social_services = c75,
+         occ_legal = c76,
+         occ_educational_library = c77,
+         occ_arts_design_ent_sports_media = c78,
+         occ_healthcare_practitioners_technical = c79,
+         occ_healthcare_support = c80,
+         occ_protective_sevice = c81,
+         occ_food_prep_serving = c82,
+         occ_building_grounds_cleaning_maintenance = c83,
+         occ_personal_care_service = c84,
+         occ_sales_related = c85,
+         occ_office_admin_support = c86,
+         occ_farming_fishing_forestry = c87,
+         occ_construction_extraction = c88,
+         occ_installation_maintenance_repair = c89,
+         occ_production = c90,
+         occ_transportation_material_moving = c91,
+         occ_military = c92,
+         occ_ina = c93)
+
+```
+
+```{r uis edit}
+
+uis_edit <- uis %>%
+  # calc total
+  mutate(total = sex_male + sex_female + sex_ina, 
+        
+         # changed age category because many states used these combined categories in their initial claims data.
+         age_24_under =  age_under_22 + age_22_24,
+         age_55_64 = age_55_59 + age_60_64) %>%
+  
+  select(-c(age_under_22, age_22_24, age_55_59, age_60_64)) %>%
+  select(state, rptdate, sample_pop, total, everything()) %>%
+  
+  gather("measure", "measure_n", sex_male:age_55_64) %>%
+  separate(measure, c("measure_type", "measure"), sep = "_", extra = "merge") %>%
+  
+  # calc percent of total for measure using the information available
+  group_by(state, rptdate, measure_type) %>%
+  mutate(measure_ina = measure_n[which(measure == "ina")],
+         measure_pct = case_when(measure != "ina" ~ measure_n/(total-measure_ina),
+                                 TRUE ~ measure_n/total),
+         measure_pct = replace_na(measure_pct, 0),
+         measure_pct_ina = measure_ina/total) %>%
+  ungroup() %>%
+  
+  # add variables
+  left_join((read_csv("Input/state_names.csv")), by = "state") %>%
+  mutate(claim_type = "Insured",
+         # date variables
+         rptdate = mdy(rptdate),
+         year = year(rptdate),
+         year_month = as.yearmon(rptdate),
+         month = as.integer(month(rptdate)),
+         
+         # axis label
+         month_labs = factor(month,
+                             levels = 1:12,
+                             labels = c("Jan","Feb","Mar","Apr","May","Jun",
+                                        "Jul","Aug","Sep","Oct","Nov","Dec"))) %>%
+  
+  # so the median is for previous 25 years (1995-2019)
+  filter(year >= 1995 & year <=2019) %>%
+  
+  # add measure stats
+  group_by(state, measure_type, measure, month_labs) %>%
+  mutate(measure_min_pct_month = min(measure_pct),
+         measure_max_pct_month = max(measure_pct),
+         measure_median_pct_month = median(measure_pct)) %>%
+  
+  as.data.frame()
+
+make_report(uis_edit) %>%
+  arrange(-`# Missing`)
+
+#uis_edit %>% write_csv("Output/federal_unemployment_data_edit.csv")
+
+```
+
+<br>
+
+#### Check federal edit
+
+```{r uis checks}
+ 
+# max date
+uis_edit %>% summarise(max = as.yearmon(max(rptdate)),
+                       min = as.yearmon(min(rptdate)))
+
+uis_edit %>% group_by(year(rptdate)) %>% summarise(n=n_distinct(state))
+# Doesn't hit 53 until 1998
+
+# chart federal total receiving unemployment by month
+uis_edit %>% group_by(year_month) %>% summarise(total = sum(total)) %>%
+  ggplot(aes(x=year_month, y=total)) +
+  geom_line()
+
+# count number of months female share is 50% or greater.
+uis_edit %>%
+  filter(measure == "female") %>%
+  count(measure_pct >= 0.5)
+
+```
+
+<br>
+<br>
+
+# Prep state data
+
+```{r state}
+
+states <- read_csv("Input/state_data_add.csv")
+
+states_edit <- states %>%
+  mutate_all(funs(replace_na(.,0))) %>%
+  
+  mutate(age_24_under = age_under_22 + age_22_24 + age_24_under,
+         age_55_64 = age_55_64 + age_55_59 + age_60_64) %>%
+  
+  # standardize race columns to match US DOL race columns
+  mutate(eth_latinx = 	eth_latinx +	racecombined_latinx +	
+           raceeth_latinx_native +		
+           raceeth_latinx_other +		
+           raceeth_latinx_unknown +		
+           raceeth_latinx_white ,		
+         eth_not_latinx =	eth_not_latinx +	racecombined_native_alaskan +	racecombined_hawaiian_pi +
+           raceeth_not_latinx_native +	racecombined_asian +	racecombined_white +
+           raceeth_not_latinx_other +	racecombined_black +	racecombined_asian_pi +
+           raceeth_not_latinx_unknown +		
+           raceeth_not_latinx_white ,		
+         eth_ina =	eth_ina +	racecombined_ina +	
+           raceeth_unknown_native +		
+           raceeth_unknown_other +		
+           raceeth_ina +		
+           raceeth_unknown_white,		
+         race_native_alaskan = 	race_native_alaskan +	racecombined_native_alaskan +	
+           raceeth_latinx_native +		
+           raceeth_not_latinx_native +		
+           raceeth_unknown_native,		
+         race_asian =	race_asian +	racecombined_asian_pi +	
+           racecombined_asian,	
+         race_black = race_black + racecombined_black,	
+         race_hawaiian_pi =	race_hawaiian_pi +	racecombined_hawaiian_pi,	
+         race_white =	race_white +	raceeth_unknown_white +	
+           raceeth_latinx_white +	racecombined_white +	
+           raceeth_not_latinx_white,		
+         race_ina =	race_ina +	racecombined_ina +	
+           raceeth_latinx_unknown +		
+           raceeth_not_latinx_unknown +		
+           raceeth_ina) %>%
+  
+  # remove measures that won't join with federal data
+  select(-c(age_under_22, age_22_24, age_55_59, age_60_64)) %>%
+  select(-contains("raceeth_")) %>%
+  select(-contains("racecombined_")) %>%
+
+  mutate(total = sex_male + sex_female + sex_ina) %>%
+  select(state, rptdate, total, everything()) %>%
+  
+  gather("measure", "measure_n", -c(state, rptdate, total)) %>%
+  separate(measure, c("measure_type", "measure"), sep = "_", extra = "merge") %>%
+  
+  # calc percent of total, for non-inas using only what has values
+  group_by(state, rptdate, measure_type) %>%
+  mutate(measure_ina = measure_n[which(measure == "ina")],
+         measure_pct = case_when(measure != "ina" ~ measure_n/(total-measure_ina),
+                                  TRUE ~ measure_n/total),
+         measure_pct = replace_na(measure_pct, 0),
+         measure_pct_ina = measure_ina/total) %>%
+  ungroup() %>%
+  
+  # add state name
+  left_join((read_csv("Input/state_names.csv")), by = "state") %>%
+  
+  # add other variables
+  mutate(claim_type = "Initial",
+         rptdate = mdy(rptdate),
+         year = year(rptdate),
+         year_month = as.yearmon(rptdate),
+         month = as.integer(month(rptdate)),
+         
+         # axis label
+         month_labs = factor(month,
+                             levels = 1:12,
+                             labels = c("Jan","Feb","Mar","Apr","May","Jun",
+                                        "Jul","Aug","Sep","Oct","Nov","Dec"))) %>%
+  
+  # add state's date of closures
+  left_join((read_csv("Input/covid_dates.csv") %>%
+               mutate_at(vars(starts_with("date")), funs(mdy(.))) %>%
+               # calculate earliest closure date
+               mutate(date_min_covid = pmin(date_school_closures, date_restaurant_closures, date_stay_in_place))), 
+            by = "state_name") %>%
+  
+  # Code if week ending was before or after earliest shutdown date
+  mutate(covid_color = ifelse(rptdate<date_min_covid, "Before shutdowns", "After shutdowns"),
+         
+         # variable indicates if state gave monthly or weekly data
+         monthly_weekly_ind = ifelse(rptdate=="2020-03-31", "monthly", "weekly")) %>%
+  
+  group_by(state, covid_color) %>%
+  
+  # count of weeks after covid shutdowns, if state only gave one week, or gave monthly data, remove from timeline chart
+  mutate(count_weeks = n_distinct(rptdate),
+         state_filter = ifelse(count_weeks < 2 & covid_color == "After shutdowns", "remove", "keep")) %>%
+  as_data_frame()
+
+make_report(states_edit) %>% arrange(-`# Missing`)
+
+states_edit %>% write_csv("Output/state_data_edit.csv")
+
+```
+
+<br>
+
+## Create comparison chart
+
+Compares the initial claims filed for the weeks after the first COVID-19 shutdowns with the min, median, and max for March of the previous years. Removes Alaska, which only provided one week of data, and Ohio and Oklahoma, which only provided monthly statistics.
+
+```{r covid compare chart}
+
+covid_compare <- states_edit %>%
+  filter(covid_color == "After shutdowns" & state_filter != "remove") %>%
+  
+  # create new totals
+  group_by(state) %>%
+  mutate(total = sum(total[which(measure == "female")])) %>%
+
+  group_by(state, measure_type) %>%
+  mutate(measure_ina = sum(measure_n[which(measure == "ina")]),
+         measure_pct_ina = measure_ina/total) %>%
+  
+  group_by(state, state_name, count_weeks, total, measure_type, measure, measure_ina) %>%
+
+  summarise(measure_n = sum(measure_n),
+            start_week = min(rptdate),
+            end_week = max(rptdate)) %>%
+  
+  # filter(state == "OR" &	measure =="not_latinx") %>%
+  mutate(measure_pct = case_when(measure != "ina" ~ (measure_n/(total - measure_ina)),
+                                       TRUE ~ measure_n/total),
+         measure_pct_ina = measure_ina/total) %>%
+  
+  # take only available measures
+  filter(measure_n>0) %>%
+  
+  # add measure median pct march from federal data
+  left_join(
+    (uis_edit %>%
+       filter(month == 3) %>%
+       select(state, measure_type, measure, 
+              measure_median_pct_march = measure_median_pct_month) %>%
+       unique()),
+    by = c("state", "measure_type", "measure")) %>%
+  
+  # calc percentage point diff
+  mutate(measure_ppt_diff_after_shutdowns = 
+           round(((measure_pct - measure_median_pct_march)*100),0)) %>%
+  as.data.frame()
+
+covid_compare %>% write_csv("Output/states_post_covid_initial_claims_compare_march_median.csv")
+
+# function for readable table
+compare_table <- function(table) {
+  table %>%
+  select(state = state_name,
+         total_claims = total,
+         group_type = measure_type,
+         group = measure,
+         total_group = measure_n,
+         share_group = measure_pct,
+         median_historical_share_group = measure_median_pct_march,
+         ppt_difference = measure_ppt_diff_after_shutdowns,
+         start_week,
+         end_week,
+         total_measure_missing_info = measure_ina,
+         share_measure_missing_info = measure_pct_ina) %>%
+dt_filter() %>%
+  formatPercentage(c("Share Group", "Median Historical Share Group", "Share Measure Missing Info"),0)
+}
+
+covid_compare %>%
+  filter(measure_n>0) %>%
+  group_by(measure_type, measure) %>%
+  summarise(n_states = n_distinct(state))
+  
+
+```
+
+<br>
+<br>
+
+# Stat checks
+
+<br>
+
+Check stats for the story, ["Coronavirus Shutdowns Make Women the Majority of Unemployment Seekers in States Across U.S."](https://fullerproject.org/story/coronavirus-shutdowns-make-women-the-majority-of-unemployment-seekers-in-states-across-u-s/), by Sarah Ryley and Jessica Washington, The Fuller Project, published April 22, 2020.
+
+<br>
+
+> Over the previous 25 years, women have typically comprised just over one-third of all unemployment recipients in March.
+
+```{r national}
+
+# make table with federal totals
+uis_edit %>%
+  filter(measure == "female") %>%
+  # create new total not including INA
+  mutate(total = total-measure_ina) %>%
+  group_by(year, month) %>%
+  summarise(total = sum(total),
+            female = sum(measure_n)) %>%
+  mutate(share_female = female/total) %>%
+  
+  group_by(month) %>%
+  summarise(min = min(share_female),
+            median = median(share_female),
+            max = max(share_female))
+
+```
+
+<br>
+
+>Even during the Great Recession, women never topped more than 47 percent of recipients.
+
+```{r recession}
+
+uis_edit %>%
+  filter(measure == "female" &
+           rptdate >= "2007-12-01" & rptdate <= "2009-06-01") %>%
+  # create new total not including INA
+  mutate(total = total-measure_ina) %>%
+  group_by(year, month) %>%
+  summarise(total = sum(total),
+            female = sum(measure_n)) %>%
+  mutate(share_female = female/total) %>%
+  arrange(-share_female)
+  
+```
+
+<br>
+
+>Combined, the state data obtained by The Fuller Project represents 4.5 million of the 20.1 million new claims filed between March 15 and April 11.
+
+```{r overall}
+
+states_edit %>%
+  filter(measure == "female" & rptdate>="2020-03-21"
+         # & rptdate < "2020-04-17"
+           ) %>%
+  mutate(total_ina = total-measure_ina) %>%
+  group_by(rptdate) %>%
+  summarise(total = sum(total),
+            total_ina = sum(total_ina),
+            female = sum(measure_n)) %>%
+  mutate(share_female = female/total_ina) %>%
+  adorn_totals()
+
+```
+
+<br>
+
+>Seventeen states provided some or all of the information requested. In the states that provided weekly breakdowns, after governors issued the first social distancing orders, women’s share of all new unemployment claims surged to highs ranging from between 53 percent in Wyoming to 67 percent in Alabama.
+
+Note: Oklahoma and Ohio provided monthly data. Alaska only provided one weeks' worth of data.
+
+```{r 17 state summary}
+
+states_edit %>%
+  filter(covid_color == "After shutdowns" & measure == "female" 
+       #  & rptdate != "2020-03-31"
+         ) %>%
+  group_by(state) %>%
+  mutate(min_week = min(rptdate),
+         max_share = max(measure_pct)) %>%
+  filter(measure_pct == max_share) %>%
+  select(state, max_share) %>%
+  arrange(-max_share)
+  
+names(states_edit)
+
+```
+
+<br>
+
+<br>
+
+>In the 14 states that provided data broken down by week, women’s share of new claims after the first coronavirus shutdowns happened in mid-March was significantly higher than their median share of unemployment recipients that month over the previous 25 years — from 11 percentage points in Oregon to 33 percentage points in North Dakota. (In Oregon, nearly half the applications filed after the shutdowns were missing gender information.)
+
+```{r female inc table}
+
+covid_compare %>% 
+  filter(measure == "female") %>%
+  compare_table()
+
+```
+
+<br>
+
+> In 12 of the 14 states that provided weekly data on age, these workers’ share of new claims was higher than the historic median by between 5 and 43 percentage points.
+
+> In several states, the share of claimants who identified as black or Latino was lower, and the share who identified as white or Asian higher.
+
+```{r covid_compare summary}
+
+covid_compare %>%
+  group_by(measure_type, measure) %>%
+  summarise(count_states_increase_5ppt_after_shutdowns = n_distinct(state[which(measure_ppt_diff_after_shutdowns>=5)]),
+            count_states_provided_measure = n_distinct(state),
+            percent_states_increase_5ppt_after_shutdowns = 
+              (n_distinct(state[which(measure_ppt_diff_after_shutdowns>=5)]))/
+              (n_distinct(state)),
+              
+            min_ppt_increase_after_shutdowns = min(measure_ppt_diff_after_shutdowns),
+            max_ppt_increase_after_shutdowns = max(measure_ppt_diff_after_shutdowns),
+            min_share_claims = min(measure_pct),
+            max_share_claims = max(measure_pct)) %>%
+  filter(measure != "ina") %>%
+  dt_filter() %>%
+  formatPercentage(c("Percent States Increase 5ppt After Shutdowns", "Min Share Claims", "Max Share Claims"),0)
+
+names(covid_compare)
+
+```
+
+<br>
+<br>
+
+# Graphics
+
+<br>
+
+## Weekly timeline chart
+
+```{r weekky chart}
+
+states_edit %>%
+  filter(measure == "female" & state_filter != "remove") %>%
+  left_join(
+    (uis_edit %>%
+       filter(measure == "female" & month == 3) %>%
+       select(state, month, measure_median_pct_month) %>%
+       unique()),
+    by = c("state")) %>%
+  group_by(state) %>%
+  ggplot(aes(x=rptdate, y=measure_pct, color=covid_color)) +
+  geom_hline(aes(yintercept=measure_median_pct_month)) +
+  geom_line(aes(x=rptdate, y=measure_pct)) +
+  geom_point(aes(fill=covid_color), size = 6) +
+  scale_colour_manual(values = c("#e6384f", "#57c7c2")) +
+  # scale_colour_manual(values = c("#57c7c2", "#e6384f")) +
+  facet_wrap(~state_name, ncol=4) +
+  theme_bw() +
+  #theme_bw() +
+  scale_y_continuous(limits = c(0.1, 0.9),
+                     labels = scales::percent_format(accuracy = 1),
+                     breaks = c(.25, .5, .75)) +
+  labs(y="% New Unemployment Claims Female",
+       title="Surge in Women's Share of New Unemployment Claims After COVID-19 Shutdowns",
+       subtitle ="Circles represent women's share of initial claims. Black line represents women's median share of recipients in March, 1995-2019.",
+       caption="The Fuller Project analysis of statistics provided by state agencies and U.S. Labor Department data, 1995-2019.") +
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(color = "black", face = "bold"),
+        plot.caption = element_text(hjust = 1))
+
+```
+
+<br>
+
+## Dumbell chart
+
+```{r covid compare dots}
+
+covid_compare %>%
+  filter(measure == "female") %>% 
+  select(state_name, 
+         `% Initial claims female after shutdowns` = measure_pct, 
+         `Median % Insured Female in March` = measure_median_pct_march) %>%
+  arrange(state_name) %>%
+  gather("measure", "value", `% Initial claims female after shutdowns`:`Median % Insured Female in March`) %>%
+  ggplot(aes(y=state_name, x=value)) +
+  geom_line(aes(x=value)) +
+  geom_point(aes(y=state_name, x=value, color=measure), size = 6) +
+  scale_colour_manual(values = c("#e6384f", "#57c7c2")) +
+  theme_minimal() +
+  scale_x_continuous(limits = c(0.1, 0.9),
+                     labels = scales::percent_format(accuracy = 1),
+                     breaks = c(.25, .5, .75)) +
+  labs(title="Women became majority of new unemployment claimants after COVID-19 shutdowns",
+       caption="The Fuller Project analysis of statistics provided by state agencies and U.S. Labor Department data, 1995-2019.") +
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(color = "black", face = "bold"),
+        plot.caption = element_text(hjust = 1))
+
+```
