@@ -1,0 +1,25 @@
+field,field_note
+claim_type,Initial claims or insured claimants.
+count_weeks,The number of weeks provided by the state.
+covid_color,"Codes reports as ""Before shutdowns"" or ""After shutdowns"" for analysis and graphic."
+date_min_covid,"Minimum date of closures, used to code the weekly reports as ""Before shutdowns"" or ""After shutdowns."""
+date_restaurant_closures,"Earliest date bars and restaurants were converted to takeout and delivery only, including for a major population area in the state, even if the order wasn't statewide."
+date_school_closures,"Earliest date of school closures, including for a major population area in the state, even if the order wasn't statewide."
+date_stay_in_place,"Earliest date of stay-in-place order, or similar, that effectively closed all nonessential businesses, including for a major population area in the state, even if the order wasn't statewide."
+measure,Measure name
+measure_ina,"Total of measure type that is ""INA""."
+measure_n,Total measure.
+measure_pct,"For measures other than ""INA"",  measure_total/total_claims_measure_not_ina; for ""INA"",  measure_total/total_claims"
+measure_pct_ina,"Percent of measure type that is ""INA"""
+measure_type,"Type of measure (sex, age, race, ethnicity, industry, occupation)."
+month,Derived from report date.
+month_labs,Derived from report date.
+monthly_weekly_ind,"Indicates if the data covers the entire month, or one week."
+notes_closures,"Notes from National Governors Association, press releases, and news clippings on dates of closures."
+rptdate,"Date of report, standardized to the last day of the week."
+state,
+state_filter,"""Remove"" is for charts. It tags states that either provided monthly data or one week of data."
+state_name,
+total,Total claims for all measures adds total for gender (sex_male + sex_female + sex_ina) because this was the most consistent measure provided by the states.
+year,Derived from report date.
+year_month,Derived from report date.

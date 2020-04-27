@@ -1,0 +1,76 @@
+"Number of Claimants, by Demographic Category",,,,,
+,Week Ending Date,,,,
+,3/7/20,3/14/20,3/21/20,3/28/20,4/4/20
+Sex,,,,,
+Male,"5,684","5,531","5,647","10,443","17,857"
+Female,"3,855","3,825","3,980","12,055","21,375"
+INA, -   , -   , -   , -   , -   
+Age,,,,,
+<22,297,285,311,"1,690","3,326"
+22-24,441,438,439,"2,001","3,638"
+25-34,"2,245","2,146","2,220","6,715","11,632"
+35-44,"2,097","2,064","2,133","4,708","8,122"
+45-54,"1,937","1,915","1,968","3,437","5,916"
+55-59,"1,066","1,061","1,086","1,728","2,836"
+60-64,888,877,891,"1,323","2,172"
+>=65,568,570,579,896,"1,590"
+INA, -   , -   , -   , -   , -   
+Ethnicity,,,,,
+Hispanic/Latino,"5,301","5,212","5,376","12,087","20,636"
+Not Hispanic/Latino,"3,542","3,479","3,571","9,008","16,163"
+INA,696,665,680,"1,403","2,433"
+Race,,,,,
+American Indian/Alaskan Native,"1,110","1,089","1,087","2,065","3,539"
+Asian,57,51,56,286,548
+Black or African American,278,275,290,645,"1,099"
+Native Hawaiian or Other Pacific Islander,24,27,28,80,139
+White,"5,418","5,298","5,494","14,223","25,420"
+INA,"2,652","2,616","2,672","5,199","8,487"
+Industry,,,,,
+Agriculture/Forestry/Fishing/Hunting,"1,146","1,141","1,134","1,148","1,192"
+Mining,312,307,319,459,740
+Utilities,14,18,20,32,45
+Construction,"1,606","1,565","1,598","1,835","2,740"
+Manufacturing,470,473,469,904,"1,740"
+Wholesale Trade,232,230,238,372,698
+Retail Trade,836,847,878,"2,051","4,715"
+Transportation & Warehousing,239,239,262,498,786
+Information,673,600,610,"1,012","1,372"
+Finance & Insurance,191,190,191,240,370
+"Real Estate, Rental, Leasing",113,109,120,272,492
+Professional/Scientific/Tech. Services,464,457,470,759,"1,243"
+Mgmt of Companies,17,20,24,35,69
+Admin & Support/Waste Mgmt/Remedial Services,875,856,912,"1,710","2,732"
+Educational Services,165,165,173,529,842
+Healthcare & Social Assistance,727,711,735,"2,540","5,157"
+"Arts, Entertainment, Recreation",171,172,175,866,"1,451"
+Accommodation & Food Service,572,562,591,"5,612","9,977"
+Other Services (Except Public Admin),207,198,214,921,"1,883"
+Public Administration,261,266,264,373,502
+INA,248,230,230,330,486
+Occupation,,,,,
+Management,834,846,876,"1,938","3,493"
+Business & Financial Operations,256,267,269,426,674
+Computer & Math,131,129,137,182,258
+Architecture & Engineering,138,139,145,160,262
+"Life, Physical & Social Sciences",164,156,165,187,267
+Community & Social Services,84,85,85,152,229
+Legal,47,42,42,52,104
+"Education, Training & Library",112,106,137,606,962
+"Arts, Design, Entertainment Sport & Media",260,250,259,570,866
+Healthcare Practitioner & Technical,176,166,184,715,"1,518"
+Healthcare Support,200,189,187,887,"1,772"
+Protective Services,256,231,247,340,475
+Food Prep & Serving Related,314,312,338,"5,276","8,884"
+Building & Grounds Cleaning & Maintenance,201,189,184,409,876
+Personal Care & Services,275,267,270,"1,153","2,131"
+Sales & Related,539,547,567,"1,407","3,219"
+Office & Admin. Support,"1,199","1,198","1,244","2,408","4,459"
+"Farming, Fishing, and Forestry","1,154","1,136","1,135","1,133","1,174"
+Construction & Extraction,"1,345","1,295","1,309","1,569","2,321"
+"Installation, Maintenance and Repair",410,408,416,644,"1,278"
+Production,733,714,710,"1,153","2,079"
+Transportation & Material Moving,698,668,705,"1,118","1,914"
+Military Specific,13,16,16,13,17
+INA, -   , -   , -   , -   , -   
+Data are a count of individual intrastate liable claimants only.,,,,,
