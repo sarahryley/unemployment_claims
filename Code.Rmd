@@ -486,7 +486,7 @@ covid_compare %>%
 
 <br>
 
-> In 12 of the 14 states that provided weekly data on age, these workers’ share of new claims was higher than the historic median by between 5 and 43 percentage points.
+> In 10 of the 12 states that provided weekly data on age, these workers’ share of new claims was higher than the historic median by between 5 and 43 percentage points.
 
 > In several states, the share of claimants who identified as black or Latino was lower, and the share who identified as white or Asian higher.
 
