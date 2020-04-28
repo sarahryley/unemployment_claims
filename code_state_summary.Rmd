@@ -1,0 +1,112 @@
+---
+title: "Code_State_Exports"
+author: "Sarah Ryley"
+date: "4/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r export}
+
+export <- 
+  states_edit %>% 
+  inner_join((uis_edit %>%
+                select(state, month, measure_type, measure, measure_min_pct_month, measure_max_pct_month, measure_median_pct_month) %>%
+                unique()),
+             by = c("state", "month", "measure_type", "measure")) %>%
+  filter(measure_n>0) %>%
+  mutate(`Difference From Median %` = round(((measure_pct - measure_median_pct_month)*100),0),
+         covid_color = case_when(monthly_weekly_ind == "monthly" ~"N/A",
+                                 covid_color == "Before shutdowns" ~ "Before", 
+                                 TRUE ~ "After"),
+         measure_type = recode(measure_type,
+                               eth = "Ethnicity",
+                               occ = "Occupation"),
+         measure = recode(measure,
+                          male = "Male",
+                          female = "Female",
+                          latinx = "Hispanic or Latino",
+                          not_latinx = "Not Hispanic or Latino",
+                          native_alaskan = "American Indian or Alaskan Native",
+                          asian = "Asian",
+                          black = "Black or African American",
+                          hawaiian_pi = "Native Hawaiian or Other Pacific Islander",
+                          white = "White",
+                          `24_under` = "24 & under",
+                          `25_34` = "25 - 34",
+                          `35_44` = "35 - 44",
+                          `45_54` = "45 - 54",
+                          `55_64` = "55 - 64",
+                          `65_over` = "65 - over",
+                          ag_forest_fish_hunt = "Agriculture, Forestry, Fishing and Hunting",
+                          mining = "Mining, Quarrying, and Oil and Gas Extraction",
+                          utilities = "Utilities",
+                          construction = "Construction",
+                          manufacturing = "Manufacturing",
+                          wholesale_trade = "Wholesale Trade",
+                          retail_trade = "Retail Trade",
+                          transport_warehouse = "Transportation and Warehousing",
+                          information = "Information",
+                          finance_insurance = "Finance and Insurance",
+                          real_estate = "Real Estate and Rental and Leasing",
+                          prof_scientific_tech_services = "Professional and Technical Services",
+                          management_of_cos_ent = "Management of Companies and Enterprises",
+                          admin_support_wastemgmt_remedial = "Administrative and Waste Services",
+                          educational_services = "Educational Services",
+                          healthcare_social_assistance = "Health Care and Social Assistance",
+                          arts_ent_rec = "Arts, Entertainment and Recreation",
+                          accomodation_food = "Accommodation and Food Services",
+                          other_services_excl_public_admin = "Other Services",
+                          public_admin = "Public Administration",
+                          mgmt = "Management Occupations",
+                          bussiness_financial_operations = "Business and Financial Operations Occupations",
+                          computer_math = "Computer and Mathematical Occupations",
+                          architecture_engineering = "Architecture and Engineering Occupations",
+                          life_physical_social_sciences = "Life, Physical, and Social Science Occupations",
+                          communinity_social_services = "Community and Social Service Occupations",
+                          legal = "Legal Occupations",
+                          educational_library = "Educational Instruction and Library Occupations",
+                          arts_design_ent_sports_media = "Arts, Design, Entertainment, Sports, and Media Occupations",
+                          healthcare_practitioners_technical = "Healthcare Practitioners and Technical Occupations",
+                          healthcare_support = "Healthcare Support Occupations",
+                          protective_sevice = "Protective Service Occupations",
+                          food_prep_serving = "Food Preparation and Serving Related Occupations",
+                          building_grounds_cleaning_maintenance = "Building and Grounds Cleaning and Maintenance Occupations",
+                          personal_care_service = "Personal Care and Service Occupations",
+                          sales_related = "Sales and Related Occupations",
+                          office_admin_support = "Office and Administrative Support Occupations",
+                          farming_fishing_forestry = "Farming, Fishing, and Forestry Occupations",
+                          construction_extraction = "Construction and Extraction Occupations",
+                          installation_maintenance_repair = "Installation, Maintenance, and Repair Occupations",
+                          production = "Production Occupations",
+                          transportation_material_moving = "Transportation and Material Moving Occupations",
+                          military = "Military Specific Occupations",
+                          ina = "INA")) %>%
+  mutate_at(c("monthly_weekly_ind", "covid_color", "measure_type"), str_to_title) %>%
+  mutate_at(c("measure_pct","measure_median_pct_month","measure_min_pct_month","measure_max_pct_month","measure_pct_ina"), funs(round(.,2))) %>%
+  select(State = state, 
+         `State Name` = state_name,
+         `Report Date` = rptdate,
+         `Monthly or Weekly Report` = monthly_weekly_ind,
+         `Before or After Earliest Closure Date` = covid_color,
+         `Total Claims` = total,
+         `Group` = `measure_type`,
+         Measure = measure,
+         `Measure Total` = measure_n,
+         `Measure % Total` = measure_pct,
+         `Measure 25-Yr Median % for Month` = measure_median_pct_month,
+         `Difference From Median %`,
+         `Measure 25-Yr Min % for Month` = measure_min_pct_month, 
+         `Measure 25-Yr Max % for Month` = measure_max_pct_month, 
+         `Group # Missing` = measure_ina,
+         `Group % Missing` = measure_pct_ina,
+         `Date School Closures` = date_school_closures,
+         `Date Dine-in Service Closures` = date_restaurant_closures,
+         `Date Stay-in-Place Order` = date_stay_in_place) 
+
+export %>% write_csv("Output/state_data_summary.csv")
+
+```

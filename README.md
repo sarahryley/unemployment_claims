@@ -6,6 +6,8 @@ We requested weekly breakdowns of initial unemployment claims from every state, 
 
 For a historic benchmark, we analyzed the U.S. Labor Department's ["Characteristics of the Insured Unemployed"](https://oui.doleta.gov/unemploy/chariu.asp) data, from 1995 through 2019. This data includes state-by-state demographic, industry, and occupation breakdowns of the total number of people receiving unemployment insurance during the week of the month that includes the 19th. (See note below, "insured" claims are not the same as "initial" claims)
 
+A reader-friendly version of the state statistics can be downloaded [here](https://docs.google.com/spreadsheets/d/1M0jWrnYqzoR_pCmTNEn6zYsXiTla9BDq4yDPl9qUJFQ/edit?usp=sharing).
+
 # State data sources
 
 The statistics from the state agencies generally include the same variables as their reports for the federal government. We manually standardized the statistics into a single spreadsheet to conform to the federal data. The following source notes were accurate as of publication. Agencies, including those not listed here, may have since changed the information they publish online.
