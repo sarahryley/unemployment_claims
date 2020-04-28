@@ -4,13 +4,47 @@ The Fuller Project analyzed data from the U.S. Labor Department and various stat
 
 We requested weekly breakdowns of initial unemployment claims from every state, from March 1 through April 11, by gender, race, ethnicity, age, industry and occupation. Seventeen states provided some or all of the information requested, either via special request or by publishing it online. 
 
-For a historic benchmark, we analyzed the U.S. Labor Department's ["Characteristics of the Insured Unemployed"](https://oui.doleta.gov/unemploy/chariu.asp) data, from 1995 through 2019. This data includes state-by-state demographic, industry, and occupation breakdowns of the total number of people receiving unemployment insurance during the week of the month that includes the 19th. (See note below, "insured" claims are not the same as "initial" claims)
+For a historic benchmark, we analyzed the U.S. Labor Department's ["Characteristics of the Insured Unemployed"](https://oui.doleta.gov/unemploy/chariu.asp) data, from 1995 through 2019. This data includes state-by-state demographic, industry, and occupation breakdowns of the total number of people receiving unemployment insurance during the week of the month that includes the 19th.
+
+#### Notes:
+
+"Initial" claims, from the states, and "insured" claims, from the federal government, are very different measures. However, the federal government does not publish similar data on initial claims.
+
+An individual files an **initial claim** for unemployment benefits to a state agency upon separation from an employer. But not everyone who files a claim gets approved. An individual who has already filed an initial claim and who has experienced a week of unemployment then files a **continued claim** to claim benefits for that week of unemployment. Continued claims are also referred to as "insured" unemployment.
+
+[This article](https://www.brookings.edu/blog/up-front/2020/04/07/how-does-unemployment-insurance-work-and-how-is-it-changing-during-the-coronavirus-pandemic/) by the Brookings Institution provides a good explainer of unemployment insurance and how it has changed under the coronavirus relief measures.
+
+State agencies did not provide consistent groupings for race and ethnicity. We standardized the groupings to conform to the federal data to the extent possible. In addition, tracking changes in the total and share of “white” applicants is problematic because the data only disaggregates totals by one characteristic at a time, separating race and ethnicity. Most Latinos choose “white” for race.
 
 A reader-friendly version of the state statistics can be downloaded [here](https://docs.google.com/spreadsheets/d/1M0jWrnYqzoR_pCmTNEn6zYsXiTla9BDq4yDPl9qUJFQ/edit?usp=sharing).
 
-# State data sources
+# Summary of variables
 
-The statistics from the state agencies generally include the same variables as their reports for the federal government. We manually standardized the statistics into a single spreadsheet to conform to the federal data. The following source notes were accurate as of publication. Agencies, including those not listed here, may have since changed the information they publish online.
+The following is a summary of the information provided by each state:
+
+| State | Sex | Age | Race | Ethnicity | Industry | Occupation |
+|--------------|-----|-----|------|-----------|----------|------------|
+| Alabama | Y | N | Y | Y | N | N |
+| Alaska | Y | N | N | N | N | N |
+| Idaho | Y | Y | N | N | N | N |
+| Minnesota | Y | Y | Y | Y | N | Y |
+| Montana | Y | Y | Y | Y | N | N |
+| Nebraska | Y | Y | Y | Y | Y | N |
+| New Jersey | Y | Y | Y | Y | N | N |
+| New Mexico | Y | Y | Y | Y | Y | Y |
+| New York | Y | Y | Y | Y | N | Y |
+| North Dakota | Y | Y | Y | Y | Y | Y |
+| Ohio | Y | Y | Y | Y | Y | N |
+| Oklahoma | Y | Y | Y | Y | N | N |
+| Oregon | Y | Y | Y | Y | N | Y |
+| Rhode Island | Y | Y | Y | Y | Y | Y |
+| Utah | Y | N | N | N | N | N |
+| Virginia | Y | Y | Y | Y | N | N |
+| Wyoming | Y | Y | N | N | N | N |
+
+# Sources
+
+We manually standardized the statistics from the state agencies into a single spreadsheet. The following source notes were accurate as of publication. Agencies, including those not listed here, may have changed the information they publish online.
 
 | State | Source Note |
 |--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -35,15 +69,6 @@ The statistics from the state agencies generally include the same variables as t
 Dates of school, restaurant, and workplace closures were pulled from the [National Governors Association](https://www.nga.org/coronavirus/), press releases, and articles.
 
 Field definitions can be found [here](https://github.com/sarahryley/ui_analysis/blob/master/Notes/field_notes.csv).
-
-# Other notes:
-
-The analysis compares demographic and industry breakdowns of initial claims, provided by the states, with the U.S. Labor Department's demographic and industry breakdowns of continued claims. The U.S. Labor Department does not publish similar data on initial claims. These are not the same. From the department:
-
->An **initial claim** is a claim filed by an unemployed individual after a separation from an employer. The count of U.S. initial claims for unemployment insurance is a leading economic indicator because it is an indication of emerging labor market
-conditions in the country. A person who has already filed an initial claim and who has experienced a week of unemployment then files a **continued claim** to claim benefits for that week of unemployment. Continued claims are also referred to as insured unemployment. Continued claims reflect the current number of insured unemployed workers filing for UI benefits in the nation.
-
-State agencies did not provide consistent groupings for race and ethnicity. We standardized the groupings to conform to the federal data to the extent possible. In addition, tracking changes in the total and share of “white” applicants is problematic because the data only disaggregates totals by one characteristic at a time, separating race and ethnicity. Most Latinos choose “white” for race.
 
 # Use Disclaimer
 

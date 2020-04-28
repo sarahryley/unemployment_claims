@@ -110,3 +110,14 @@ export <-
 export %>% write_csv("Output/state_data_summary.csv")
 
 ```
+
+```{r summary chart}
+
+export %>%
+  group_by(State = `State Name`, Group) %>%
+  summarise(n = n()) %>%
+  spread(Group, n) %>%
+  select(State, Sex, Age, Race, Ethnicity, everything()) %>%
+  mutate_if(is.integer, funs(ifelse(is.na(.), "N", "Y")))
+
+```
