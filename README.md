@@ -10,7 +10,7 @@ For a historic benchmark, we analyzed the U.S. Labor Department's ["Characterist
 
 "Initial" claims, from the states, and "insured" claims, from the federal government, are very different measures. However, the federal government does not publish similar data on initial claims.
 
-An individual files an **initial claim** for unemployment benefits to a state agency upon separation from an employer. But not everyone who files a claim gets approved. An individual who has already filed an initial claim and who has experienced a week of unemployment then files a **continued claim** to claim benefits for that week of unemployment. Continued claims are also referred to as "insured" unemployment.
+An individual files an initial claim for unemployment benefits to a state agency upon separation from an employer. But not everyone who files a claim gets approved. An individual who has already filed an initial claim and who has experienced a week of unemployment then files a continued claim to claim benefits for that week of unemployment. Continued claims are also referred to as "insured" unemployment.
 
 [This article](https://www.brookings.edu/blog/up-front/2020/04/07/how-does-unemployment-insurance-work-and-how-is-it-changing-during-the-coronavirus-pandemic/) by the Brookings Institution provides a good explainer of unemployment insurance and how it has changed under the coronavirus relief measures.
 
