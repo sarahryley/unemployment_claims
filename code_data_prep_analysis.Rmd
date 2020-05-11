@@ -198,7 +198,16 @@ uis_edit %>%
 
 ```{r state}
 
-states <- read_csv("Input/state_data_add.csv")
+# add california data that we got later
+states <- read_csv("Input/state_data_add.csv") %>%
+  bind_rows((read_csv("Input/CA_add.csv")))
+
+make_report(states)
+
+```
+
+
+```{r edit state ui}
 
 states_edit <- states %>%
   mutate_all(funs(replace_na(.,0))) %>%
@@ -252,10 +261,12 @@ states_edit <- states %>%
   # calc percent of total, for non-inas using only what has values
   group_by(state, rptdate, measure_type) %>%
   mutate(measure_ina = measure_n[which(measure == "ina")],
-         measure_pct = case_when(measure != "ina" ~ measure_n/(total-measure_ina),
-                                  TRUE ~ measure_n/total),
+         measure_total = sum(measure_n),
+         measure_total_not_ina = sum(measure_n[which(measure != "ina")]),
+         measure_pct = case_when(measure != "ina" ~ measure_n/(measure_total_not_ina),
+                                  TRUE ~ measure_ina/measure_total),
          measure_pct = replace_na(measure_pct, 0),
-         measure_pct_ina = measure_ina/total) %>%
+         measure_pct_ina = measure_ina/measure_total) %>%
   ungroup() %>%
   
   # add state name
@@ -314,24 +325,26 @@ covid_compare <- states_edit %>%
   # create new totals
   group_by(state) %>%
   mutate(total = sum(total[which(measure == "female")])) %>%
-
+  
   group_by(state, measure_type) %>%
   mutate(measure_ina = sum(measure_n[which(measure == "ina")]),
-         measure_pct_ina = measure_ina/total) %>%
+         measure_total = sum(measure_n),
+         measure_total_not_ina = sum(measure_n[which(measure != "ina")])) %>%
+  as.data.frame() %>%
   
-  group_by(state, state_name, count_weeks, total, measure_type, measure, measure_ina) %>%
-
+  filter(measure_total > 0) %>%
+  
+  group_by(state, state_name, count_weeks, total, measure_type, measure, measure_ina, measure_total, measure_total_not_ina) %>%
   summarise(measure_n = sum(measure_n),
             start_week = min(rptdate),
             end_week = max(rptdate)) %>%
   
-  # filter(state == "OR" &	measure =="not_latinx") %>%
-  mutate(measure_pct = case_when(measure != "ina" ~ (measure_n/(total - measure_ina)),
-                                       TRUE ~ measure_n/total),
-         measure_pct_ina = measure_ina/total) %>%
-  
+  mutate(measure_pct = case_when(measure != "ina" ~ measure_n/(measure_total_not_ina),
+                                 TRUE ~ measure_ina/measure_total),
+         measure_pct = replace_na(measure_pct, 0),
+         measure_pct_ina = measure_ina/measure_total) %>%
   # take only available measures
-  filter(measure_n>0) %>%
+  
   
   # add measure median pct march from federal data
   left_join(
@@ -380,6 +393,8 @@ covid_compare %>%
 <br>
 
 # Stat checks
+
+*Note: New data has been added since the stat checks*
 
 <br>
 
@@ -465,8 +480,6 @@ states_edit %>%
   filter(measure_pct == max_share) %>%
   select(state, max_share) %>%
   arrange(-max_share)
-  
-names(states_edit)
 
 ```
 
@@ -531,7 +544,7 @@ states_edit %>%
        select(state, month, measure_median_pct_month) %>%
        unique()),
     by = c("state")) %>%
-  group_by(state) %>%
+  filter(state == "CA") %>%
   ggplot(aes(x=rptdate, y=measure_pct, color=covid_color)) +
   geom_hline(aes(yintercept=measure_median_pct_month)) +
   geom_line(aes(x=rptdate, y=measure_pct)) +
